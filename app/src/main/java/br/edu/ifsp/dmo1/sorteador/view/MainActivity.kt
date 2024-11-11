@@ -5,16 +5,21 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import br.edu.ifsp.dmo1.sorteador.R
+import br.edu.ifsp.dmo1.sorteador.adapter.DrawnNumberAdapter
 import br.edu.ifsp.dmo1.sorteador.databinding.ActivityMainBinding
 import br.edu.ifsp.dmo1.sorteador.model.Draw
 
 class MainActivity : AppCompatActivity(), OnClickListener {
-    private lateinit var binding:ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var listView: ListView
+    private lateinit var adapter: DrawnNumberAdapter
     private var draw = Draw()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +27,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setClickListener()
+        setListViewAndAdapter()
     }
 
     override fun onClick(v: View) {
@@ -31,22 +37,27 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                     binding.editMaxLimit.text.toString().toInt()
                 }
                 catch(e: NumberFormatException) {
-                    -1
+                    1000
                 }
 
-                draw = if (limit > 1) {
-                    Draw(1,limit)
-                }
-                else {
-                    Draw()
+                if (limit > 1) {
+                    draw = Draw(limit)
                 }
 
                 updateUI()
             }
 
             binding.buttonDraw -> {
-                binding.textViewExit.text = draw.getNumber().toString()
-                updateListView()
+                if (! draw.isFull()) {
+                    binding.textViewLastDrawn.text = draw.getNumber().toString()
+                    updateListView()
+                }
+                else {
+                    Toast.makeText(
+                        this,
+                        "Quantidade máxima de números sorteados.",
+                        Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -57,20 +68,22 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun updateUI() {
-        val str = String.format("Intervalo de 1 à %,d.", draw.getMaxLimit())
+        val str = "Intervalo de 1 à ${draw.getMaxLimit()}"
         binding.textViewInterval.text = str
         binding.editMaxLimit.text.clear()
-        binding.textViewExit.text = getString(R.string.start_draw)
+        binding.textViewLastDrawn.text = getString(R.string.start_draw)
         updateListView()
     }
 
     private fun updateListView() {
-        val adapter: ArrayAdapter<Int> = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            draw.getHistory()
-        )
+        adapter.clear()
+        adapter.addAll(draw.getHistory().sortedBy { it.order })
+        adapter.notifyDataSetChanged()
+    }
 
-        binding.listViewDraw.adapter = adapter
+    private fun setListViewAndAdapter() {
+        listView = binding.listViewDraw
+        adapter = DrawnNumberAdapter(this, draw.getHistory())
+        listView.adapter = adapter
     }
 }

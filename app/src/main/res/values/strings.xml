@@ -4,5 +4,5 @@
     <string name="use_limits">Utilizar limites</string>
     <string name="hint_max_value">Valor máximo</string>
     <string name="start_draw">Iniciar sorteio</string>
-    <string name="draw_from_1_to_1000">Sorteio de 1 a 1000</string>
+    <string name="draw_from_1_to_1000">Sorteio de 1 à 1000</string>
 </resources>

@@ -36,7 +36,7 @@
         android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/text_view_exit"
+        android:id="@+id/text_view_last_drawn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

@@ -1,31 +1,33 @@
 package br.edu.ifsp.dmo1.sorteador.model
 
-class Draw(private val minLimit: Int = 1, private val maxLimit: Int = 1000) {
-    private lateinit var strategy: DrawStrategy
-    private var history = HashSet<Int>()
+class Draw(private val maxLimit: Int = 1000) {
+    private var strategy: DrawStrategy
+    private var history = HashSet<DrawnNumber>()
 
     init {
-        if (minLimit == 1 && maxLimit == 100) {
+        if (maxLimit == 1000) {
             strategy = DefaultLimit
         }
         else {
-            strategy = DefinedLimit(minLimit, maxLimit)
+            strategy = DefinedLimit(maxLimit)
         }
     }
 
-    fun getNumber(): Int {
-        var number: Int = 0
+    fun getNumber(): DrawnNumber {
+        var drawn: DrawnNumber
 
         do {
-            number = strategy.nextNumber()
-        } while(! history.add(number))
+            drawn = DrawnNumber(history.size + 1, strategy.nextNumber())
+        } while(! history.add(drawn))
 
-        return number
+        return drawn
     }
 
     fun getHistory() = ArrayList(history)
 
-    fun getMinLimit() = strategy.getMinLimit()
-
     fun getMaxLimit() = strategy.getMaxLimit()
+
+    fun isFull(): Boolean {
+        return history.size == maxLimit
+    }
 }
